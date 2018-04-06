@@ -1,0 +1,446 @@
+>>> def hamming_string(bytes_1,bytes_2,encoding = 'utf-16'):
+...     """
+...     calculate the total hamming difference from a set of strings...
+...
+...     identical strings should return a zero.
+...     """
+...     total_dist = 0;
+...     assert type(bytes_1) in (str,bytes,list)
+...     assert type(bytes_2) in (str,bytes,list)
+...     if type(bytes_1) == str: bytes_1 = bytes(bytes_1,encoding)
+...     if type(bytes_2) == str: bytes_2 = bytes(bytes_2,encoding)
+...     if type(bytes_1) == bytes: bytes_1 = list(bytes_1);
+...     if type(bytes_2) == bytes: bytes_2 = list(bytes_2);
+...     if len(bytes_2)>len(bytes_1): bytes_1,bytes_2 = bytes_2,bytes_1;
+...     while len(bytes_2) < len(bytes_1): bytes_2.append(0); # pad strings to make even. (add null bytes(0) to pad.)
+...     for a in range(0,len(bytes_1)): total_dist+=hamming_distance(bytes_1[a],bytes_2[a])
+...     return total_dist;
+...
+>>> def hamming_distance(bits_1, bits_2):
+...     """
+...     calculate the number of differing bits - should work regardless of
+...     what format the bytes are in.
+...     """
+...     distance = 0;
+...     val = bits_1 ^ bits_2
+...     while val > 0:
+...         distance+=1; # increment the bit counter;
+...         # set the value and clear a bit. You have to be careful with order of operations in python.
+...         val = val & (val -1)
+...     return distance;
+...
+>>> hamming_string("a","b")
+2
+>>> b = "a"
+>>> b = bytes(b,'ascii')
+>>> while b>0:
+...
+...
+  File "<stdin>", line 3
+
+    ^
+IndentationError: expected an indented block
+>>> y = 0
+>>> while b>0:
+...     b =b>>1
+...     y+=1
+...
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unorderable types: bytes() > int()
+>>> b = b^0
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for ^: 'bytes' and 'int'
+>>> bytes(0)
+b''
+>>> bytes('\0')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: string argument without an encoding
+>>> bytes('\0','ascii')
+b'\x00'
+>>> bytes('\0','ascii') == bytes(0)
+False
+>>> bytes(0)
+b''
+>>> '' != '\x00'
+True
+>>> '\x01'^'\x00'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for ^: 'str' and 'str'
+>>> b'\x01'^b'\x00'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for ^: 'bytes' and 'bytes'
+>>> b'\x01'^b'\x00'
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: unsupported operand type(s) for ^: 'bytes' and 'bytes'
+>>> hamming_string("alpha",'ahpla')
+2
+>>> ln = hamming_string("alpha",'ahpla')
+>>> 5/ln
+2.5
+>>> ln/5
+0.4
+>>> len("alpha")
+5
+>>> len("alpha")/hamming_string("alpha","ahpla")
+2.5
+>>> hamming_string("alpha","ahpla")/len("alpha")
+0.4
+>>> 2/5(8)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'int' object is not callable
+>>> 2/(5*8)
+0.05
+>>> 10*(2/(5*8))
+0.5
+>>> def bit_count(a,b=0x01):
+...     """ count number of active bits in an object
+...         Needs to follow the same pattern of use
+...         as hamming string and hamming distance.
+...         this is incredibly encoding dependent - so be warned.
+...     """
+...     c = 0;
+...     while a>0:
+...         a = a>>b;
+...         c+=1;
+...     return c
+...
+>>> def bit_string(bytes_in,encoding='ascii'):
+...     """
+...     handler for capturing and returning the bit length.
+...     remember that this will count NON ZERO BITS. You may get
+...     some odd behaviour in utf-16 encoded strings.
+...     """
+...     total_bits  = 0;
+...     ### type conversion components ###
+...     assert type(bytes_in) in (str,bytes,list) # don't want to get a type error.
+...     if type(bytes_in) == str: bytes_in  = bytes(bytes_in,encoding);
+...     if type(bytes_in) == bytes: bytes_in = list(bytes_in) # needs to be a list.
+...     ###    END TYPE CONVERSION!    ###
+...     for a in range(0,len(bytes_in)): total_bits += bit_count(bytes_in);
+...     return total_bits;
+...
+>>> bit_string("alpha")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 13, in bit_string
+  File "<stdin>", line 8, in bit_count
+TypeError: unorderable types: list() > int()
+>>> def bit_string(bytes_in,encoding='ascii'):
+...     """
+...     handler for capturing and returning the bit length.
+...     remember that this will count NON ZERO BITS. You may get
+...     some odd behaviour in utf-16 encoded strings.
+...     """
+...     total_bits  = 0;
+...     ### type conversion components ###
+...     assert type(bytes_in) in (str,bytes,list) # don't want to get a type error.
+...     if type(bytes_in) == str: bytes_in  = bytes(bytes_in,encoding);
+...     if type(bytes_in) == bytes: bytes_in = list(bytes_in) # needs to be a list.
+...     ###    END TYPE CONVERSION!    ###
+...     for a in range(0,len(bytes_in)): total_bits += bit_count(a);
+...     return total_bits;
+...
+>>> bit_string("alpha")
+8
+>>> bit_string("a")
+0
+>>> bit_string("b")
+0
+>>> bit_string("c")
+0
+>>> bit_string("c",'utf-16')
+5
+>>> bytes('a','ascii')
+b'a'
+>>> bytes('a','ascii')
+b'a'
+>>> def bit_string(bytes_in,encoding='ascii'):
+...     """
+...     handler for capturing and returning the bit length.
+...     remember that this will count NON ZERO BITS. You may get
+...     some odd behaviour in utf-16 encoded strings.
+...     """
+...     total_bits  = 0;
+...     ### type conversion components ###
+...     assert type(bytes_in) in (str,bytes,list) # don't want to get a type error.
+...     if type(bytes_in) == str: bytes_in  = bytes(bytes_in,encoding);
+...     if type(bytes_in) == bytes: bytes_in = list(bytes_in) # needs to be a list.
+...     ###    END TYPE CONVERSION!    ###
+...     for a in range(0,len(bytes_in)): total_bits += bit_count(bytes_in[a]);
+...     return total_bits;
+...
+>>> x = bit_string('alpha')
+>>> x
+35
+>>> y = bit_string('ahpla'()
+... )
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'str' object is not callable
+>>> y = bit_string('ahpla')
+>>> x
+35
+>>> y
+35
+>>> y = bit_string('zed')
+>>> y
+21
+>>> hamming_string('ahpla','zed)
+  File "<stdin>", line 1
+    hamming_string('ahpla','zed)
+                               ^
+SyntaxError: EOL while scanning string literal
+>>> hamming_string('ahpla','zed')
+16
+>>> y
+21
+>>> x/hamming_string('ahpla','zed')
+2.1875
+>>> hamming_string('ahpla','zed')/x
+0.45714285714285713
+>>> hamming_string('ahpla','ahpla')/x
+0.0
+>>> 100-(hamming_string('ahpla','ahpla')/x)
+100.0
+>>> 100-(hamming_string('ahpla','a')/x)
+99.62857142857143
+>>> 1(hamming_string('ahpla','a')/x)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'int' object is not callable
+>>> 1-(hamming_string('ahpla','a')/x)
+0.6285714285714286
+>>> 1-(hamming_string('ahpla','ahpla')/x)
+1.0
+>>> 1-(hamming_string('ahpla','alpha')/x)
+0.9428571428571428
+>>> 1-(hamming_string('ahpla','alpha alpha')/x)
+0.4571428571428572
+>>> 1-(hamming_string('ahpla','alphaalpha')/x)
+0.48571428571428577
+>>> 1-(hamming_string('alpha','alphaalpha')/x)
+0.5428571428571429
+>>> 1-(hamming_string('alpha','aahlp')/x)
+0.7714285714285715
+>>>
+>>> x
+35
+>>> (bit_string('alpha')+bit_string('allph'))/2
+35.0
+>>> (bit_string('alpha')+bit_string('allpha'))/2
+38.5
+>>> def bit_count(a,b=0x01):
+...     """ count number of active bits in an object
+...         Needs to follow the same pattern of use
+...         as hamming string and hamming distance.
+...         this is incredibly encoding dependent - so be warned.
+...     """
+...     c = 0;
+...     while a>0:
+...         a = a>>b;
+...         c+=1;
+...     return c
+...
+... def string_confidence(bytes_1,bytes_2,encoding = "ascii"):
+  File "<stdin>", line 13
+    def string_confidence(bytes_1,bytes_2,encoding = "ascii"):
+      ^
+SyntaxError: invalid syntax
+>>>     """
+  File "<stdin>", line 1
+    """
+    ^
+IndentationError: unexpected indent
+>>>     calculate the difference in characters between two strings
+  File "<stdin>", line 1
+    calculate the difference in characters between two strings
+    ^
+IndentationError: unexpected indent
+>>>     returns a percent match between two strings.
+  File "<stdin>", line 1
+    returns a percent match between two strings.
+    ^
+IndentationError: unexpected indent
+>>>     """
+  File "<stdin>", line 1
+    """
+    ^
+IndentationError: unexpected indent
+>>>     total_percentage=1; # to subtract from.
+  File "<stdin>", line 1
+    total_percentage=1; # to subtract from.
+    ^
+IndentationError: unexpected indent
+>>>     length = bit_string(bytes_1)+bit_string(bits_2)/2 # get the average number of bits.
+  File "<stdin>", line 1
+    length = bit_string(bytes_1)+bit_string(bits_2)/2 # get the average number of bits.
+    ^
+IndentationError: unexpected indent
+>>>     length = length or 1; # minimum length is 1.
+  File "<stdin>", line 1
+    length = length or 1; # minimum length is 1.
+    ^
+IndentationError: unexpected indent
+>>>     variance = hamming_string(bytes_1,bytes_2,encoding)
+  File "<stdin>", line 1
+    variance = hamming_string(bytes_1,bytes_2,encoding)
+    ^
+IndentationError: unexpected indent
+>>>     return total_percentage-(variance/length); # should get the variance we're looking for.
+  File "<stdin>", line 1
+    return total_percentage-(variance/length); # should get the variance we're looking for.
+    ^
+IndentationError: unexpected indent
+>>>
+...
+...
+...
+>>> def bit_string(bytes_in,encoding='ascii'):
+...     """
+...     handler for capturing and returning the bit length.
+...     remember that this will count NON ZERO BITS. You may get
+...     some odd behaviour in utf-16 encoded strings.
+...     """
+...     total_bits  = 0;
+...     ### type conversion components ###
+...     assert type(bytes_in) in (str,bytes,list) # don't want to get a type error.
+...     if type(bytes_in) == str: bytes_in  = bytes(bytes_in,encoding);
+...     if type(bytes_in) == bytes: bytes_in = list(bytes_in) # needs to be a list.
+...     ###    END TYPE CONVERSION!    ###
+...     for a in range(0,len(bytes_in)): total_bits += bit_count(bytes_in[a]);
+...     return total_bits;
+...
+...
+>>> def hamming_string(bytes_1,bytes_2,encoding='utf-16'):
+...     """
+...     calculate the total hamming difference from a set of strings...
+...
+...     identical strings should return a zero.
+...     """
+...     total_dist = 0;
+...     assert type(bytes_1) in (str,bytes,list)
+...     assert type(bytes_2) in (str,bytes,list)
+...     if type(bytes_1) == str: bytes_1 = bytes(bytes_1,encoding)
+...     if type(bytes_2) == str: bytes_2 = bytes(bytes_2,encoding)
+...     if type(bytes_1) == bytes: bytes_1 = list(bytes_1);
+...     if type(bytes_2) == bytes: bytes_2 = list(bytes_2);
+...     if len(bytes_2)>len(bytes_1): bytes_1,bytes_2 = bytes_2,bytes_1;
+...     while len(bytes_2) < len(bytes_1): bytes_2.append(0); # pad strings to make even. (add null bytes(0) to pad.)
+...     for a in range(0,len(bytes_1)): total_dist+=hamming_distance(bytes_1[a],bytes_2[a])
+...     return total_dist;
+...
+>>> string_confidence("batman","manbat")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'string_confidence' is not defined
+>>>
+>>>
+>>>
+>>> def string_confidence(bytes_1,bytes_2,encoding = "ascii"):
+...     """
+...     calculate the difference in characters between two strings
+...     returns a percent match between two strings.
+...     """
+...     total_percentage=1; # to subtract from.
+...     length = bit_string(bytes_1)+bit_string(bits_2)/2 # get the average number of bits.
+...     length = length or 1; # minimum length is 1.
+...     variance = hamming_string(bytes_1,bytes_2,encoding)
+...     return total_percentage-(variance/length); # should get the variance we're looking for.]
+...
+>>> def string_confidence(bytes_1,bytes_2,encoding = "ascii"):
+...     """
+...     calculate the difference in characters between two strings
+...     returns a percent match between two strings.
+...     """
+...     total_percentage=1; # to subtract from.
+...     length = bit_string(bytes_1)+bit_string(bits_2)/2 # get the average number of bits.
+...     length = length or 1; # minimum length is 1.
+...     variance = hamming_string(bytes_1,bytes_2,encoding)
+...     return total_percentage-(variance/length); # should get the variance we're looking for.
+...
+>>> string_confidence('batman','manbat')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "<stdin>", line 7, in string_confidence
+NameError: name 'bits_2' is not defined
+>>> def string_confidence(bytes_1,bytes_2,encoding = "ascii"):
+...     """
+...     calculate the difference in characters between two strings
+...     returns a percent match between two strings.
+...     """
+...     total_percentage=1; # to subtract from.
+...     length = bit_string(bytes_1)+bit_string(bytes_2)/2 # get the average number of bits.
+...     length = length or 1; # minimum length is 1.
+...     variance = hamming_string(bytes_1,bytes_2,encoding)
+...     return total_percentage-(variance/length); # should get the variance we're looking for.
+...
+>>> string_confidence('batman','manbat')
+0.7777777777777778
+>>> string_confidence('batman','Batman')
+0.9841269841269842
+>>> string_confidence('batman','Bat-man')
+0.803030303030303
+>>> string_confidence('batman','Bat Man')
+0.7424242424242424
+>>> string_confidence('batman','Man- B'aat')
+  File "<stdin>", line 1
+    string_confidence('batman','Man- B'aat')
+                                         ^
+SyntaxError: invalid syntax
+>>> string_confidence('batman','Man- B\'aat')
+0.6291390728476821
+>>> string_confidence('batman','a t m a n b')
+0.6538461538461539
+>>> # basically strings matching at about 60 percent are useless
+...
+>>> string_confidence('supercalifragilisticexpialidocious','batman')
+0.5096525096525096
+>>> string_confidence('supercalifragilisticexpialidocious','SuperCalifragilisticexpialidocIous')
+0.9915966386554622
+>>> string_confidence('supercalifragilisticexpialidocious','SUPERCALIFRAGILISTICEXPIALIDOCIOUS')
+0.9047619047619048
+>>> string_confidence('supercalifragilisticexpialidocious','1')
+0.4315352697095436
+>>> string_confidence('supercalifragilisticexpialidocious','BADGER')
+0.48262548262548266
+>>> # NEED TO RULE OUT WHAT THE DIFFERENCE IS BETWEEN CERTAIN WORDS
+...
+>>> string_confidence('supercalifragilisticexpialidocious',string.printable)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'string' is not defined
+>>> import string
+>>> string_confidence('supercalifragilisticexpialidocious',string.printable)
+0.4065544729849424
+>>> string_confidence('supercalifragilisticexpialidocious','')
+0.4117647058823529
+>>> string_confidence('supercalifragilisticexpialidocious','super')
+0.5342465753424658
+>>> string_confidence('supercalifragilisticexpialidocious','supercalifragilisticexpialidocious')
+1.0
+>>> def alt_edit_confidence(bytes_1,bytes_2,encoding = 'ascii'):
+...     """"""
+...     total_percentage = 1;
+...     length = bit_string(bytes_1) # not adjusting for the longer string, just seeing what happens.
+...     variance = hamming_string(bytes_1,bytes_2,encoding);
+...     return total_percentage-(variance/length);
+...
+>>> alt_edit_confidence('supercalifragilisticexpialidocious,'supercalifragilisticexpialidocious')
+  File "<stdin>", line 1
+    alt_edit_confidence('supercalifragilisticexpialidocious,'supercalifragilisticexpialidocious')
+                                                                                              ^
+SyntaxError: invalid syntax
+>>> alt_edit_confidence('supercalifragilisticexpialidocious','supercalifragilisticexpialidocious')
+1.0
+>>> alt_edit_confidence('supercalifragilisticexpialidocious','super')
+0.5
+>>> alt_edit_confidence('super','supercalifragilisticexpialidocious')
+-2.4
+>>>
